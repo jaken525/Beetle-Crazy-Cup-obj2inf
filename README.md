@@ -11,6 +11,8 @@ The UV scan must be reflected vertically.
 
 The approximate dimensions and directions of the model can be taken from the original model "1_CARRO.obj".
 
+The model must be made of triangles.
+
 1. Drag the model file to the program folder.
 2. Open "objparser.exe".
 3. Enter the number of the texture that will replace the original one.
