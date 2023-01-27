@@ -1,0 +1,5 @@
+﻿  obj2inf.cpp
+C:\Users\Admin\source\repos\obj2inf\obj2inf\obj2inf.cpp(100,20): warning C4018: <: несоответствие типов со знаком и без знака
+C:\Users\Admin\source\repos\obj2inf\obj2inf\obj2inf.cpp(189,21): warning C4018: <: несоответствие типов со знаком и без знака
+C:\Users\Admin\source\repos\obj2inf\obj2inf\obj2inf.cpp(198,27): warning C4018: <=: несоответствие типов со знаком и без знака
+  obj2inf.vcxproj -> C:\Users\Admin\source\repos\obj2inf\Debug\obj2inf.exe
