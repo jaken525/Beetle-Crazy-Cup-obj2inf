@@ -3,3 +3,7 @@ This program is designed to convert obj files of 3d models into 4 files: inf, no
 
 # objparser
 The repository was used for objparser: https://github.com/stefangordon/ObjParser
+
+# Instruction
+1. Drag the model file to the program folder.
+2. Open "objparser.exe".
