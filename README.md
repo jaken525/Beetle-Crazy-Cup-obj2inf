@@ -15,4 +15,5 @@ The model must be made of triangles.
 
 1. Drag the model file to the program folder.
 2. Open "objparser.exe".
-3. Enter the number of the texture that will replace the original one.
+3. Choose the model file.
+4. Enter the number of the texture that will replace the original one.
