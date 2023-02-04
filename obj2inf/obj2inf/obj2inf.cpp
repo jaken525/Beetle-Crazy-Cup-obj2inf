@@ -1,3 +1,21 @@
+﻿/*
+#############################
+	The project was made
+			 by
+		  JaKeN525
+	     obj2inf for
+      Beetle Crazy Cup
+#############################
+
+ -----------------------------
+|   ###    ###    ###    ###  |
+|  #   #  #   #  #   #  #   # |
+|     #   #   #     #      #  |
+|    #    #   #    #    #   # |
+|  #####   ###   #####   ###  |
+ -----------------------------
+*/
+
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
@@ -14,6 +32,7 @@ using namespace std;
 int facesNum = 0;
 int verNum = 0;
 int tverNum = 0;
+int norNum = 0;
 
 float* vertices;
 float* tvertices;
@@ -91,6 +110,7 @@ void writeINF()
 	ifstream facesFile("Faces.txt");
 	ifstream verFile("Vertex.txt");
 	ifstream tverFile("Texture.txt");
+	ifstream norFile("Normal.txt");
 
 	while (getline(facesFile, line)) 
 	{
@@ -101,11 +121,15 @@ void writeINF()
 		verNum++;
 	while (getline(tverFile, line))
 		tverNum++;
+	while (getline(norFile, line))
+		norNum++;
 
 	verNum /= 3;
 	facesNum /= 3;
 	tverNum /= 2;
+	norNum /= 3;
 
+	norFile.close();
 	facesFile.close();
 	verFile.close();
 	tverFile.close();
@@ -201,12 +225,12 @@ void writeTRI(int tex)
 void writeNOR() 
 {
 	//read
-	normals = new float[verNum * 3];
+	normals = new float[norNum * 3];
 
 	ifstream normalsFile("Normal.txt");
 	string str = "";
 
-	for (int i = 0; i < verNum; i++)
+	for (int i = 0; i < norNum; i++)
 	{
 		getline(normalsFile, str);
 		normals[i * 3] = stof(changeSymbol(str, ',', '.'));
@@ -220,7 +244,7 @@ void writeNOR()
 	//write
 	ofstream file("test.nor", ios_base::binary);
 
-	for (int i = 0; i < verNum; i++)
+	for (int i = 0; i < norNum; i++)
 		file << writeFloatLong(normals[i * 3])
 		<< writeFloatLong(normals[(i * 3) + 1])
 		<< writeFloatLong(normals[(i * 3) + 2]);
@@ -241,6 +265,10 @@ bool FileIsExist(string path)
 
 void DeleteAllFiles() 
 {
+	delete[] normals;
+	delete[] vertices;
+	delete[] tvertices;
+
 	remove("Vertex.txt");
 	remove("Faces.txt");
 	remove("Texture.txt");
