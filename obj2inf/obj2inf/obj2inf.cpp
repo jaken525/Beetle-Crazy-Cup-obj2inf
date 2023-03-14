@@ -39,24 +39,32 @@ string writeShort(int num)
 	return hex;
 }
 
-string writeLong(int num) 
+std::string writeLong(int num)
 {
+	std::string Hex = "";
+	std::stringstream s;
+	s << std::hex << num;
+
+	int zeroes = 8 - size(s.str());
+	for (int i = 0; i < zeroes; i++)
+		Hex += "0";
+	Hex += s.str();
+
 	int arr[] = { 0, 0, 0, 0 };
-	for (int i = 0; num >= 256; i++)
+	int c = 3;
+	for (int i = 0; i < Hex.length() - 1; i += 2)
 	{
-		while (num >= 256) 
-		{
-			arr[i + 1] += 1;
-			num -= 256;
-		}
+		std::stringstream h;
+		h << Hex[i] << Hex[i + 1];
+		h >> std::hex >> arr[c];
+		c--;
 	}
-	arr[0] = num;
 
-	string hex = "";
-	for (int i = 0; i < 4; i++) 
-		hex += char(uint8_t(arr[i]));
+	Hex = "";
+	for (int i = 0; i < 4; i++)
+		Hex += char(uint8_t(arr[i]));
 
-	return hex;
+	return Hex;
 }
 
 string writeFloatLong(float num)
