@@ -45,8 +45,7 @@ std::string writeLong(int num)
 	std::stringstream s;
 	s << std::hex << num;
 
-	int zeroes = 8 - size(s.str());
-	for (int i = 0; i < zeroes; i++)
+	for (int i = 0; i < 8 - size(s.str()); i++)
 		Hex += "0";
 	Hex += s.str();
 
