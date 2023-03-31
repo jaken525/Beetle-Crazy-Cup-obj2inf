@@ -1,6 +1,0 @@
-F:\New folder\ObjParser-master\ObjParser\bin\Debug\ObjParser.dll
-F:\New folder\ObjParser-master\ObjParser\bin\Debug\ObjParser.pdb
-F:\New folder\ObjParser-master\ObjParser\obj\Debug\ObjParser.csproj.AssemblyReference.cache
-F:\New folder\ObjParser-master\ObjParser\obj\Debug\ObjParser.csproj.CoreCompileInputs.cache
-F:\New folder\ObjParser-master\ObjParser\obj\Debug\ObjParser.dll
-F:\New folder\ObjParser-master\ObjParser\obj\Debug\ObjParser.pdb
