@@ -1,3 +1,21 @@
+﻿/*
+################################
+The project was made by JaKeN525
+obj2inf for
+Beetle Crazy Cup/Kaefer Total/
+Beetle Buggin'/Radical Drive/
+Larry Ragland's 4x4 Challenge
+################################
+
+ ------------------------------
+|   ###    ###    ###    ###   |
+|  #   #  #   #  #   #  #   #  |
+|     #   #   #     #      #   |
+|    #    #   #    #    #   #  |
+|  #####   ###   #####   ###   |
+ ------------------------------
+*/
+
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
@@ -8,21 +26,61 @@
 #include <windows.h>
 #include <shlwapi.h>
 #include <vector>
+#include <filesystem>
+#include "parser.h"
 
-using namespace std;
+namespace fs = std::filesystem;
+using namespace obj;
 
 int facesNum = 0;
 int verNum = 0;
 int tverNum = 0;
 int norNum = 0;
 
-float* vertices;
-float* tvertices;
-float* normals;
+std::vector<float> vertices;
+std::vector<float> tvertices;
+std::vector<float> normals;
 
-vector<string> polygons;
+std::vector<std::string> polygons;
+std::string path = fs::current_path().string();
 
-string writeShort(int num)
+std::string openfilename(HWND owner = NULL, uint32_t flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY)
+{
+	std::string filename(MAX_PATH, '\0');
+	OPENFILENAME ofn = { };
+
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = owner;
+	ofn.lpstrFilter = "Wavefront Files (*.obj)\0*.obj\0All Files (*.*)\0*.*\0";
+	ofn.lpstrFile = &filename[0];
+	ofn.nMaxFile = MAX_PATH;
+	ofn.lpstrTitle = "Select a File";
+	ofn.Flags = flags;
+
+	if (!GetOpenFileName(&ofn))
+		return "";
+	return filename;
+}
+
+std::string getFilenameFile(const std::string str)
+{
+	size_t found;
+	std::string strt;
+	found = str.find_last_of("/\\");
+	if (found < str.size())
+	{
+		strt = str.substr(found + 1, -1);
+		found = strt.find(".");
+		if (found < strt.size())
+			strt = strt.substr(0, found);
+	}
+	else strt = str;
+	size_t lastdot = strt.find_last_of(".");
+	if (lastdot == std::string::npos) return strt;
+	return strt.substr(0, lastdot);
+}
+
+std::string writeShort(int num)
 {
 	int arr[] = { 0, 0 };
 	while (num >= 256)
@@ -32,7 +90,7 @@ string writeShort(int num)
 	}
 	arr[0] = num;
 
-	string hex;
+	std::string hex;
 	for (int i = 0; i < 2; i++)
 		hex += char(arr[i]);
 
@@ -45,7 +103,8 @@ std::string writeLong(int num)
 	std::stringstream s;
 	s << std::hex << num;
 
-	for (int i = 0; i < 8 - size(s.str()); i++)
+	int zeroes = 8 - size(s.str());
+	for (int i = 0; i < zeroes; i++)
 		Hex += "0";
 	Hex += s.str();
 
@@ -66,9 +125,9 @@ std::string writeLong(int num)
 	return Hex;
 }
 
-string writeFloatLong(float num)
+std::string writeFloatLong(float num)
 {
-	string strHEX = "";
+	std::string strHEX = "";
 	unsigned long a = 0;
 	unsigned long a24 = 0;
 	float n = num;
@@ -84,7 +143,7 @@ string writeFloatLong(float num)
 	return strHEX;
 }
 
-string changeSymbol(string str, char ch1, char ch2) 
+std::string changeSymbol(std::string str, char ch1, char ch2)
 {
 	for (int i = 0; i < str.length(); i++)
 		if (str[i] == ch1) str[i] = ch2;
@@ -92,74 +151,30 @@ string changeSymbol(string str, char ch1, char ch2)
 	return str;
 }
 
-void writeINF() 
+void writeINF(ObjParser obj, std::string fileName) 
 {
 	// read
-	string line;
-	ifstream facesFile("Faces.txt");
-	ifstream verFile("Vertex.txt");
-	ifstream tverFile("Texture.txt");
-	ifstream norFile("Normal.txt");
-
-	while (getline(facesFile, line)) 
-	{
-		polygons.push_back(line);
-		facesNum++;
-	}
-	while (getline(verFile, line))
-		verNum++;
-	while (getline(tverFile, line))
-		tverNum++;
-	while (getline(norFile, line))
-		norNum++;
-
-	verNum /= 3;
-	facesNum /= 3;
-	tverNum /= 2;
-	norNum /= 3;
-
-	norFile.close();
-	facesFile.close();
-	verFile.close();
-	tverFile.close();
+	polygons = obj.GetFaces();
+	facesNum = obj.GetFacesNumber();
+	verNum = obj.GetVerticiesNumber();
+	tverNum = obj.GetTextureVerticiesNumber();
+	norNum = obj.GetNormalsNumber();;
 
 	// write
-	ofstream infFile("test.inf", ios_base::binary);
+	std::ofstream infFile(path + "\\Converted\\" + fileName + ".inf", std::ios_base::binary);
 
 	infFile << writeLong(tverNum) << writeLong(facesNum);
 	infFile.close();
 }
 
-void writeVER() 
+void writeVER(ObjParser obj, std::string fileName)
 {
 	//read
-	vertices = new float[verNum * 3];
-	tvertices = new float[tverNum * 2];
-
-	ifstream vertexFile("Vertex.txt");
-	ifstream textureFile("Texture.txt");
-	string str = "";
-
-	for (int i = 0; i < verNum; i++) 
-	{
-		getline(vertexFile, str);
-		vertices[i * 3] = stof(changeSymbol(str, ',', '.'));
-		getline(vertexFile, str);
-		vertices[(i * 3) + 1] = stof(changeSymbol(str, ',', '.'));
-		getline(vertexFile, str);
-		vertices[(i * 3) + 2] = stof(changeSymbol(str, ',', '.'));
-	}
-	for (int i = 0; i < tverNum; i++)
-	{
-		getline(textureFile, str);
-		tvertices[i * 2] = stof(changeSymbol(str, ',', '.'));
-		getline(textureFile, str);
-		tvertices[(i * 2) + 1] = stof(changeSymbol(str, ',', '.'));
-	}
-	vertexFile.close();
+	vertices = obj.GetVerticies();
+	tvertices = obj.GetTextureVerticies();
 
 	//write
-	ofstream file("test.ver", ios_base::binary);
+	std::ofstream file(path + "\\Converted\\" + fileName + ".ver", std::ios_base::binary);
 	
 	for (int i = 0; i < tverNum; i++)
 		file << writeFloatLong(vertices[i * 3])
@@ -170,15 +185,15 @@ void writeVER()
 	file.close();
 }
 
-void writeTRI(int tex)
+void writeTRI(int tex, std::string fileName)
 {	
 	//read
-	vector<int> verTriangles;
-	vector<int> norTriangles;
+	std::vector<int> verTriangles;
+	std::vector<int> norTriangles;
 
 	for (int i = 0; i < facesNum * 3; i++)
 	{
-		string tempFace = "";
+		std::string tempFace = "";
 
 		for (int k = 0; k < size(polygons[i]); k++)
 		{
@@ -201,7 +216,7 @@ void writeTRI(int tex)
 	}
 
 	//write
-	ofstream file("test.tri", ios_base::binary);
+	std::ofstream file(path + "\\Converted\\" + fileName + ".tri", std::ios_base::binary);
 
 	for (int i = 0; i < facesNum; i++) 
 		file << writeShort(verTriangles[i * 3]) << writeShort(norTriangles[i * 3])
@@ -211,27 +226,10 @@ void writeTRI(int tex)
 	file.close();
 }
 
-void writeNOR() 
+void writeNOR(ObjParser obj, std::string fileName)
 {
-	//read
-	normals = new float[norNum * 3];
-
-	ifstream normalsFile("Normal.txt");
-	string str = "";
-
-	for (int i = 0; i < norNum; i++)
-	{
-		getline(normalsFile, str);
-		normals[i * 3] = stof(changeSymbol(str, ',', '.'));
-		getline(normalsFile, str);
-		normals[(i * 3) + 1] = stof(changeSymbol(str, ',', '.'));
-		getline(normalsFile, str);
-		normals[(i * 3) + 2] = stof(changeSymbol(str, ',', '.'));
-	}
-	normalsFile.close();
-
 	//write
-	ofstream file("test.nor", ios_base::binary);
+	std::ofstream file(path + "\\Converted\\" + fileName + ".nor", std::ios_base::binary);
 
 	for (int i = 0; i < norNum; i++)
 		file << writeFloatLong(normals[i * 3])
@@ -240,10 +238,10 @@ void writeNOR()
 	file.close();
 }
 
-bool FileIsExist(string path)
+bool FileIsExist(std::string path)
 {
 	bool isExist = false;
-	ifstream fin(path.c_str());
+	std::ifstream fin(path.c_str());
 
 	if (fin.is_open())
 		isExist = true;
@@ -252,34 +250,49 @@ bool FileIsExist(string path)
 	return isExist;
 }
 
-void DeleteAllFiles() 
+void ClearArrays() 
 {
-	delete[] normals;
-	delete[] vertices;
-	delete[] tvertices;
-
-	remove("Vertex.txt");
-	remove("Faces.txt");
-	remove("Texture.txt");
-
-	if (FileIsExist("Normal.txt"))
-		remove("Normal.txt");
+	normals.clear();
+	vertices.clear();
+	tvertices.clear();
 }
 
 int main() 
 {
-	writeINF();
-	writeVER();
+	ClearArrays();
+	std::string fileName;
+	std::string filePath;
 
-	int texture;
-	cout << "Enter texture number: ";
-	cin >> texture;
-	writeTRI(texture);
+	filePath = openfilename();
+	fileName = getFilenameFile(filePath);
 
-	if (FileIsExist("Normal.txt"))
-		writeNOR();
+	if (!fs::exists(path + "\\Converted"))
+		fs::create_directory(path + "\\Converted");
 
-	DeleteAllFiles();
+	if (fs::exists(filePath))
+	{
+		ObjParser obj;
+		obj.parse(filePath);
 
+		writeINF(obj, fileName);
+		writeVER(obj, fileName);
+
+		int texture;
+		std::cout << "Enter texture number: ";
+		std::cin >> texture;
+
+		writeTRI(texture, fileName);
+
+		normals = obj.GetNormals();
+		if (normals.size() != NULL)
+			writeNOR(obj, fileName);
+
+		ClearArrays();
+		std::cout << " Model converted successfully!" << std::endl;
+	}
+	else
+		std::cout << " Unable to open the file." << std::endl;
+
+	system("pause");
 	return 0;
 }
