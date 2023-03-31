@@ -1,21 +1,3 @@
-﻿/*
-################################
-The project was made by JaKeN525
-obj2inf for
-Beetle Crazy Cup/Kaefer Total/
-Beetle Buggin'/Radical Drive/
-Larry Ragland's 4x4 Challenge
-################################
-
- ------------------------------
-|   ###    ###    ###    ###   |
-|  #   #  #   #  #   #  #   #  |
-|     #   #   #     #      #   |
-|    #    #   #    #    #   #  |
-|  #####   ###   #####   ###   |
- ------------------------------
-*/
-
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
